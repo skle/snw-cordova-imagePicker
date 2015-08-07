@@ -13,6 +13,8 @@
 @property (nonatomic, strong) NSArray *rowAssets;
 @property (nonatomic, strong) NSMutableArray *imageViewArray;
 @property (nonatomic, strong) NSMutableArray *overlayViewArray;
+@property (nonatomic, assign) CGFloat assetDimension;
+@property (nonatomic, assign) int assetPadding;
 
 @end
 
@@ -36,8 +38,10 @@
 	return self;
 }
 
-- (void)setAssets:(NSArray *)assets
+- (void)setAssets:(NSArray *)assets withDimension:(CGFloat)dimension withPadding:(int)padding
 {
+    self.assetDimension = dimension;
+    self.assetPadding = padding;
     self.rowAssets = assets;
 	for (UIImageView *view in _imageViewArray) {
         [view removeFromSuperview];
@@ -76,10 +80,10 @@
 - (void)cellTapped:(UITapGestureRecognizer *)tapRecognizer
 {
     CGPoint point = [tapRecognizer locationInView:self];
-    CGFloat totalWidth = self.rowAssets.count * 75 + (self.rowAssets.count - 1) * 4;
+    CGFloat totalWidth = self.rowAssets.count * self.assetDimension + (self.rowAssets.count - 1) * self.assetPadding;
     CGFloat startX = (self.bounds.size.width - totalWidth) / 2;
     
-	CGRect frame = CGRectMake(startX, 2, 75, 75);
+	CGRect frame = CGRectMake(startX, self.assetPadding / 2, self.assetDimension, self.assetDimension);
 	
 	for (int i = 0; i < [_rowAssets count]; ++i) {
         if (CGRectContainsPoint(frame, point)) {
@@ -89,16 +93,16 @@
             overlayView.hidden = !asset.selected;
             break;
         }
-        frame.origin.x = frame.origin.x + frame.size.width + 4;
+        frame.origin.x = frame.origin.x + frame.size.width + self.assetPadding;
     }
 }
 
 - (void)layoutSubviews
 {    
-    CGFloat totalWidth = self.rowAssets.count * 75 + (self.rowAssets.count - 1) * 4;
+    CGFloat totalWidth = self.rowAssets.count * self.assetDimension + (self.rowAssets.count - 1) * self.assetPadding;
     CGFloat startX = (self.bounds.size.width - totalWidth) / 2;
     
-	CGRect frame = CGRectMake(startX, 2, 75, 75);
+	CGRect frame = CGRectMake(startX, self.assetPadding / 2, self.assetDimension, self.assetDimension);
 	
 	for (int i = 0; i < [_rowAssets count]; ++i) {
 		UIImageView *imageView = [_imageViewArray objectAtIndex:i];
@@ -109,7 +113,7 @@
         [overlayView setFrame:frame];
         [self addSubview:overlayView];
 		
-		frame.origin.x = frame.origin.x + frame.size.width + 4;
+		frame.origin.x = frame.origin.x + frame.size.width + self.assetPadding;
 	}
 }
 

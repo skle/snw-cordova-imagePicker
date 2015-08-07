@@ -13,6 +13,8 @@
 @interface ELCAssetTablePicker ()
 
 @property (nonatomic, assign) int columns;
+@property (nonatomic, assign) CGFloat assetDimension;
+@property (nonatomic, assign) int assetPadding;
 
 @end
 
@@ -27,6 +29,7 @@
         //Sets a reasonable default bigger then 0 for columns
         //So that we don't have a divide by 0 scenario
         self.columns = 4;
+        self.assetPadding = 2;
     }
     return self;
 }
@@ -54,6 +57,8 @@
 {
     [super viewWillAppear:animated];
     self.columns = self.view.bounds.size.width / 80;
+    self.assetPadding = 2;
+    [self recalculateAssetDimension];
 }
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)toInterfaceOrientation
@@ -65,7 +70,14 @@
 {
     [super didRotateFromInterfaceOrientation:fromInterfaceOrientation];
     self.columns = self.view.bounds.size.width / 80;
-    [self.tableView reloadData];
+    self.assetPadding = 2;
+    [self recalculateAssetDimension];
+    [self.tableView reloadData];    
+}
+
+- (void)recalculateAssetDimension // Modded
+{
+    self.assetDimension = (self.view.bounds.size.width - ((self.columns - 1) * self.assetPadding) - (self.assetPadding * 2) / self.columns;
 }
 
 - (void)preparePhotos
@@ -190,14 +202,14 @@
         cell = [[ELCAssetCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:CellIdentifier];
     }
     
-    [cell setAssets:[self assetsForIndexPath:indexPath]];
+    [cell setAssets:[self assetsForIndexPath:indexPath] withDimension:self.assetDimension withPadding:self.assetPadding];
     
     return cell;
 }
 
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-	return 79;
+	return (int)(self.assetDimension + self.assetPadding);
 }
 
 - (int)totalSelectedAssets
