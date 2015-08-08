@@ -21,6 +21,7 @@
 	NSDictionary *options = [command.arguments objectAtIndex: 0];
 
 	NSInteger maximumImagesCount = [[options objectForKey:@"maximumImagesCount"] integerValue];
+    self.useOriginal = [[options objectForKey:@"useOriginal"] boolValue];
 	self.width = [[options objectForKey:@"width"] integerValue];
 	self.height = [[options objectForKey:@"height"] integerValue];
 	self.quality = [[options objectForKey:@"quality"] integerValue];
@@ -53,6 +54,8 @@
 - (void)elcImagePickerController:(ELCImagePickerController *)picker didFinishPickingMediaWithInfo:(NSArray *)info {
 	CDVPluginResult* result = nil;
 	NSMutableArray *resultStrings = [[NSMutableArray alloc] init];
+    Byte *buffer = 0;
+    NSUInteger buffered = 0;
     NSData* data = nil;
     NSString* docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
     NSError* err = nil;
@@ -74,21 +77,29 @@
             ALAssetRepresentation *assetRep = [asset defaultRepresentation];
             CGImageRef imgRef = NULL;
             
-            //defaultRepresentation returns image as it appears in photo picker, rotated and sized,
-            //so use UIImageOrientationUp when creating our image below.
-            if (picker.returnsOriginalImage) {
-                imgRef = [assetRep fullResolutionImage];
-                orientation = [assetRep orientation];
+            if(self.useOriginal) {
+                buffer = (Byte*)malloc(assetRep.size);
+                buffered = [assetRep getBytes:buffer fromOffset:0 length:assetRep.size error:nil];
+                data = [NSData dataWithBytesNoCopy:buffer length:buffered freeWhenDone:YES];
+
             } else {
-                imgRef = [assetRep fullScreenImage];
-            }
-            
-            UIImage* image = [UIImage imageWithCGImage:imgRef scale:1.0f orientation:orientation];
-            if (self.width == 0 && self.height == 0) {
-                data = UIImageJPEGRepresentation(image, self.quality/100.0f);
-            } else {
-                UIImage* scaledImage = [self imageByScalingNotCroppingForSize:image toSize:targetSize];
-                data = UIImageJPEGRepresentation(scaledImage, self.quality/100.0f);
+                //defaultRepresentation returns image as it appears in photo picker, rotated and sized,
+                //so use UIImageOrientationUp when creating our image below.
+                if (picker.returnsOriginalImage) {
+                    imgRef = [assetRep fullResolutionImage];
+                    orientation = [assetRep orientation];
+                } else {
+                    imgRef = [assetRep fullScreenImage];
+                }
+                
+                UIImage* image = [UIImage imageWithCGImage:imgRef scale:1.0f orientation:orientation];
+                if (self.width == 0 && self.height == 0) {
+                    data = UIImageJPEGRepresentation(image, self.quality/100.0f);
+                } else {
+                    UIImage* scaledImage = [self imageByScalingNotCroppingForSize:image toSize:targetSize];
+                    data = UIImageJPEGRepresentation(scaledImage, self.quality/100.0f);
+                }
+                
             }
             
             if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {

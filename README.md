@@ -5,7 +5,10 @@ snw-cordova-imagePicker
 This is a fork of https://github.com/wymsee/cordova-imagePicker with these features added.
 
 Added: 
-    - "Select All" for iOS
+    iOS
+    - options.useOriginal (bool) can be used to boost the performance
+      when you don't need to resize the images.
+    - "Select All" button
     - Adaptive layout that supports iPhone 6, 6+ and possibly future models
     - Cosmetic changes reflecting iOS 8
 
