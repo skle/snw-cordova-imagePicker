@@ -9,6 +9,7 @@ Added:
     iOS
     - options.useOriginal (bool) can be used to boost the performance
       when you don't need to do any image manipulation.
+    - Loading spinner
     - "Select All" button
     - Adaptive layout that supports iPhone 6, 6+ and possibly future models
     - Cosmetic changes reflecting iOS 8

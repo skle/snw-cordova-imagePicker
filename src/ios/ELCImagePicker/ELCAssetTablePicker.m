@@ -59,6 +59,23 @@
 	[self performSelectorInBackground:@selector(preparePhotos) withObject:nil];
 }
 
+- (void)loadView {
+    [super loadView];
+    UIActivityIndicatorView *activityIndicator = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+    activityIndicator.frame = CGRectMake(0, 0, 80, 80);
+    activityIndicator.backgroundColor = [UIColor colorWithRed:0 green:0 blue:0 alpha:0.8];
+    activityIndicator.layer.cornerRadius = 10;
+    activityIndicator.hidesWhenStopped = YES;
+    [self.view addSubview:activityIndicator];
+    self.activityIndicator = activityIndicator;
+}
+
+- (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    CGRect viewBounds = self.view.bounds;
+    self.activityIndicator.center = CGPointMake(CGRectGetMidX(viewBounds), CGRectGetMidY(viewBounds));
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
@@ -181,15 +198,25 @@
 }
 
 - (void)doneAction:(id)sender
-{	
-	NSMutableArray *selectedAssetsImages = [[NSMutableArray alloc] init];
-	    
-	for (ELCAsset *elcAsset in self.elcAssets) {
-		if ([elcAsset selected]) {
-			[selectedAssetsImages addObject:[elcAsset asset]];
-		}
-	}
-    [self.parent selectedAssets:selectedAssetsImages];
+{
+    [self.activityIndicator startAnimating];
+    [self performSelectorInBackground:@selector(prepareAssets) withObject:nil];
+}
+
+- (void) prepareAssets {
+    NSMutableArray *selectedAssetsImages = [[NSMutableArray alloc] init];
+    
+    for (ELCAsset *elcAsset in self.elcAssets) {
+        if ([elcAsset selected]) {
+            [selectedAssetsImages addObject:[elcAsset asset]];
+        }
+    }
+    [self performSelectorOnMainThread:@selector(returnAssets:) withObject:selectedAssetsImages waitUntilDone:YES];
+    [self.activityIndicator removeFromSuperview];
+}
+
+- (void) returnAssets:(NSMutableArray *)selectedAssetsImages {
+      [self.parent selectedAssets:selectedAssetsImages];
 }
 
 
