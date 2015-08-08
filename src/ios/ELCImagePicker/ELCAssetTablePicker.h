@@ -27,5 +27,7 @@
 - (void)preparePhotos;
 
 - (void)doneAction:(id)sender;
+- (void)selectAllAction:(id)sender;
+- (void)deselectAllAction:(id)sender;
 
 @end

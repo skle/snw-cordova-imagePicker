@@ -25,6 +25,8 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+
+    [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
 	
 	[self.navigationItem setTitle:@"Loading..."];
 

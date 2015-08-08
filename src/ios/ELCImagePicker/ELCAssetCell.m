@@ -77,11 +77,24 @@
     }
 }
 
+- (void)toggleOverlay:(int)index
+{
+    ELCAsset *asset = [_rowAssets objectAtIndex:index];
+    UIImageView *overlayView = [_overlayViewArray objectAtIndex:index];
+    overlayView.hidden = !asset.selected;
+}
+
+- (void)toggleOverlays
+{
+    for (int i = 0; i < [_rowAssets count]; ++i) {
+        [self toggleOverlay:i];
+    }
+}
+
 - (void)cellTapped:(UITapGestureRecognizer *)tapRecognizer
 {
     CGPoint point = [tapRecognizer locationInView:self];
-    CGFloat totalWidth = self.rowAssets.count * self.assetDimension + (self.rowAssets.count - 1) * self.assetPadding;
-    CGFloat startX = (self.bounds.size.width - totalWidth) / 2;
+    CGFloat startX = self.assetPadding / 2;
     
 	CGRect frame = CGRectMake(startX, self.assetPadding / 2, self.assetDimension, self.assetDimension);
 	
@@ -89,8 +102,7 @@
         if (CGRectContainsPoint(frame, point)) {
             ELCAsset *asset = [_rowAssets objectAtIndex:i];
             asset.selected = !asset.selected;
-            UIImageView *overlayView = [_overlayViewArray objectAtIndex:i];
-            overlayView.hidden = !asset.selected;
+            [self toggleOverlay:i];
             break;
         }
         frame.origin.x = frame.origin.x + frame.size.width + self.assetPadding;
@@ -99,8 +111,7 @@
 
 - (void)layoutSubviews
 {    
-    CGFloat totalWidth = self.rowAssets.count * self.assetDimension + (self.rowAssets.count - 1) * self.assetPadding;
-    CGFloat startX = (self.bounds.size.width - totalWidth) / 2;
+    CGFloat startX = self.assetPadding / 2;
     
 	CGRect frame = CGRectMake(startX, self.assetPadding / 2, self.assetDimension, self.assetDimension);
 	

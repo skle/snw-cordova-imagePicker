@@ -45,9 +45,15 @@
     if (self.immediateReturn) {
         
     } else {
-        UIBarButtonItem *doneButtonItem = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemDone target:self action:@selector(doneAction:)];
+        UIBarButtonItem *doneButtonItem = [[UIBarButtonItem alloc]
+                                           initWithBarButtonSystemItem:UIBarButtonSystemItemDone
+                                           target:self
+                                           action:@selector(doneAction:)];        
         [self.navigationItem setRightBarButtonItem:doneButtonItem];
         [self.navigationItem setTitle:@"Loading..."];
+
+        [self.navigationController setToolbarHidden:NO];
+        [self deselectAllAction:nil];
     }
 
 	[self performSelectorInBackground:@selector(preparePhotos) withObject:nil];
@@ -77,7 +83,7 @@
 
 - (void)recalculateAssetDimension // Modded
 {
-    self.assetDimension = (self.view.bounds.size.width - ((self.columns - 1) * self.assetPadding) - (self.assetPadding * 2) / self.columns;
+    self.assetDimension = (self.view.bounds.size.width - ((self.columns - 1) * self.assetPadding) - (self.assetPadding*2)) / self.columns;
 }
 
 - (void)preparePhotos
@@ -122,6 +128,56 @@
             [self.navigationItem setTitle:self.singleSelection ? @"Pick Photo" : @"Pick Photos"];
         });
     }
+}
+
+- (void)selectAllAction:(id)sender
+{
+    for (ELCAsset *asset in [self.elcAssets reverseObjectEnumerator]) {
+        if([self shouldSelectAsset:asset]) {
+            asset.selected = YES;
+        } else {
+            break;
+        }
+    }
+    
+    for (NSInteger j = 0; j < [self.tableView numberOfSections]; ++j)
+    {
+        for (NSInteger i = 0; i < [self.tableView numberOfRowsInSection:j]; ++i)
+        {
+            ELCAssetCell *cell = (ELCAssetCell*)[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:i inSection:j]];
+            [cell toggleOverlays];
+        }
+    }
+
+    UIBarButtonItem *deselectAllButtonItem = [[UIBarButtonItem alloc]
+                                            initWithTitle: @"Deselect All"
+                                            style:UIBarButtonItemStylePlain
+                                            target:self
+                                            action:@selector(deselectAllAction:)];
+    [self setToolbarItems:[NSArray arrayWithObjects:deselectAllButtonItem, nil]];
+}
+
+- (void)deselectAllAction:(id)sender
+{
+    for (ELCAsset *asset in self.elcAssets) {
+        asset.selected = NO;
+    }
+    
+    for (NSInteger j = 0; j < [self.tableView numberOfSections]; ++j)
+    {
+        for (NSInteger i = 0; i < [self.tableView numberOfRowsInSection:j]; ++i)
+        {
+            ELCAssetCell *cell = (ELCAssetCell*)[self.tableView cellForRowAtIndexPath:[NSIndexPath indexPathForRow:i inSection:j]];
+            [cell toggleOverlays];
+        }
+    }
+    
+    UIBarButtonItem *selectAllButtonItem = [[UIBarButtonItem alloc]
+                                            initWithTitle: @"Select All"
+                                            style:UIBarButtonItemStylePlain
+                                            target:self
+                                            action:@selector(selectAllAction:)];
+    [self setToolbarItems:[NSArray arrayWithObjects:selectAllButtonItem, nil]];
 }
 
 - (void)doneAction:(id)sender

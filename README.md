@@ -2,11 +2,14 @@ snw-cordova-imagePicker
 =======================
 
 ```
-This is a fork of https://github.com/wymsee/cordova-imagePicker with minor fixes.
+This is a fork of https://github.com/wymsee/cordova-imagePicker with these features added.
+
+Added: 
+    - "Select All" for iOS
+    - Adaptive layout that supports iPhone 6, 6+ and possibly future models
+    - Cosmetic changes reflecting iOS 8
 
 Fixes:
-    - Adaptive layout that support iPhone 6, 6+ and possibly future model
-    - Cosmetic changes reflecting iOS 8
     - Android short fileanme crash
 ```
 
