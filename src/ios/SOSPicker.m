@@ -67,27 +67,36 @@
 	for (NSDictionary *dict in info) {
         asset = [dict objectForKey:@"ALAsset"];
         // From ELCImagePickerController.m
-
-        int i = 1;
-        do {
-            filePath = [NSString stringWithFormat:@"%@/%@%03d.%@", docsPath, CDV_PHOTO_PREFIX, i++, @"jpg"];
-        } while ([fileMgr fileExistsAtPath:filePath]);
         
         @autoreleasepool {
             ALAssetRepresentation *assetRep = [asset defaultRepresentation];
             CGImageRef imgRef = NULL;
+
+            int fileName = 1;
+            NSString *fileExtension = @"jpg";
             
             if(self.useOriginal) {
+
                 buffer = (Byte*)malloc(assetRep.size);
                 buffered = [assetRep getBytes:buffer fromOffset:0 length:assetRep.size error:nil];
                 data = [NSData dataWithBytesNoCopy:buffer length:buffered freeWhenDone:YES];
+
+                if ([assetRep.UTI isEqualToString:@"public.png"]) {
+                    fileExtension = @"png";
+                } else if([assetRep.UTI isEqualToString:@"public.tif"] || [assetRep.UTI isEqualToString:@"public.tiff"]) {
+                    fileExtension = @"tiff";
+                }
 
             } else {
                 //defaultRepresentation returns image as it appears in photo picker, rotated and sized,
                 //so use UIImageOrientationUp when creating our image below.
                 if (picker.returnsOriginalImage) {
                     imgRef = [assetRep fullResolutionImage];
-                    orientation = [assetRep orientation];
+                    
+                    NSNumber *orientationValue = [asset valueForProperty:@"ALAssetPropertyOrientation"];
+                        if (orientationValue != nil) {
+                        orientation = [orientationValue intValue];
+                    }
                 } else {
                     imgRef = [assetRep fullScreenImage];
                 }
@@ -101,6 +110,10 @@
                 }
                 
             }
+
+            do {
+                filePath = [NSString stringWithFormat:@"%@/%@%03d.%@", docsPath, CDV_PHOTO_PREFIX, fileName++, fileExtension];
+            } while ([fileMgr fileExistsAtPath:filePath]);
             
             if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
                 result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
