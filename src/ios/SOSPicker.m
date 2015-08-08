@@ -61,6 +61,8 @@
     NSError* err = nil;
     NSFileManager* fileMgr = [[NSFileManager alloc] init];
     NSString* filePath;
+    int fileName = 1;
+    NSString *fileExtension = @"jpg";
     ALAsset* asset = nil;
     UIImageOrientation orientation = UIImageOrientationUp;;
     CGSize targetSize = CGSizeMake(self.width, self.height);
@@ -72,9 +74,6 @@
             ALAssetRepresentation *assetRep = [asset defaultRepresentation];
             CGImageRef imgRef = NULL;
 
-            int fileName = 1;
-            NSString *fileExtension = @"jpg";
-            
             if(self.useOriginal) {
 
                 buffer = (Byte*)malloc(assetRep.size);
@@ -108,6 +107,8 @@
                     UIImage* scaledImage = [self imageByScalingNotCroppingForSize:image toSize:targetSize];
                     data = UIImageJPEGRepresentation(scaledImage, self.quality/100.0f);
                 }
+
+                fileExtension = @"jpg";
                 
             }
 

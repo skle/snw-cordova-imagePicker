@@ -14,7 +14,7 @@ Added:
     - Cosmetic changes reflecting iOS 8
 
 Fixes:
-    - Android short fileanme crash
+    - Android short filename crash
 ```
 
 You should read the document from the upstream about how to use the plugin.
