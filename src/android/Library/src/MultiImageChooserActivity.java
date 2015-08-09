@@ -188,40 +188,19 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         boolean isChecked = !isChecked(position);
         if (maxImages == 0 && isChecked) {
             isChecked = false;
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Maximum " + maxImageCount + " Photos");
-            builder.setMessage("You can only select " + maxImageCount + " photos at a time.");
-            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int which) { 
-                    dialog.cancel();
-                }
-            });
-            AlertDialog alert = builder.create();
-            alert.show();
+            openMaxImagesReachedDialog();
         } else if (isChecked) {
             fileNames.put(name, new Integer(rotation));
             if (maxImageCount == 1) {
                 this.selectClicked(null);
             } else {
                 maxImages--;
-                ImageView imageView = (ImageView)view;
-                if (android.os.Build.VERSION.SDK_INT>=16) {
-                  imageView.setImageAlpha(128);
-                } else {
-                  imageView.setAlpha(128);
-                }
-                view.setBackgroundColor(selectedColor);
+                addOverlay(view);
             }
         } else {
             fileNames.remove(name);
             maxImages++;
-            ImageView imageView = (ImageView)view;
-            if (android.os.Build.VERSION.SDK_INT>=16) {
-                imageView.setImageAlpha(255);
-            } else {
-                imageView.setAlpha(255);
-            }
-            view.setBackgroundColor(Color.TRANSPARENT);
+            removeOverlay(view);
         }
 
         checkStatus.put(position, isChecked);
@@ -291,6 +270,75 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         finish();
     }
 
+    public void allClicked(View ignored) {
+        ((TextView) getActionBar().getCustomView().findViewById(fakeR.getId("id", "actionbar_all_textview"))).setText(getString(fakeR.getId("string", "clear")));
+        getActionBar().getCustomView().findViewById(fakeR.getId("id", "actionbar_all")).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // "Select All"
+                deselectAllClicked(null);
+            }
+        });
+        
+
+        fileNames.clear();
+        int position = 0;
+        String name = null;
+        int rotation = 0;
+        
+        if(actualimagecursor.moveToLast()) {
+
+            do {
+
+                if (maxImages == 0) {
+                    openMaxImagesReachedDialog();
+                    break;
+                }                
+                name = actualimagecursor.getString(actual_image_column_index);
+                rotation = actualimagecursor.getInt(orientation_column_index);
+                position = actualimagecursor.getPosition();
+                addOverlay((View)gridView.getChildAt(position));
+
+                fileNames.put(name, new Integer(rotation));
+                checkStatus.put(position, true);
+                position++;
+                maxImages--;
+
+            } while(actualimagecursor.moveToPrevious());
+        }
+        updateAcceptButton();
+    }
+
+    public void deselectAllClicked(View ignored) {
+        ((TextView) getActionBar().getCustomView().findViewById(fakeR.getId("id", "actionbar_all_textview"))).setText(getString(fakeR.getId("string", "all")));
+        getActionBar().getCustomView().findViewById(fakeR.getId("id", "actionbar_all")).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // "Select All"
+                allClicked(null);
+            }
+        });
+
+        int position = 0;
+        String name = null;
+        int rotation = 0;
+        fileNames.clear();
+
+        if(actualimagecursor.moveToFirst()) {
+
+            do {
+
+                position = actualimagecursor.getPosition();
+                removeOverlay((View)gridView.getChildAt(position));
+                checkStatus.put(position, false);
+                position++;
+
+            } while(actualimagecursor.moveToNext());
+            maxImages = getIntent().getIntExtra(MAX_IMAGES_KEY, NOLIMIT);
+        }
+        updateAcceptButton();
+    }
+
     public void selectClicked(View ignored) {
         ((TextView) getActionBar().getCustomView().findViewById(fakeR.getId("id", "actionbar_done_textview"))).setEnabled(false);
         getActionBar().getCustomView().findViewById(fakeR.getId("id", "actionbar_done")).setEnabled(false);
@@ -344,6 +392,13 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 selectClicked(null);
             }
         });
+        customActionBarView.findViewById(fakeR.getId("id", "actionbar_all")).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // "Select All"
+                allClicked(null);
+            }
+        });
         customActionBarView.findViewById(fakeR.getId("id", "actionbar_discard")).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -394,10 +449,10 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
     ********************/
     private class SquareImageView extends ImageView {
         public SquareImageView(Context context) {
-			super(context);
-		}
+            super(context);
+        }
 
-		@Override
+        @Override
         public void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
             super.onMeasure(widthMeasureSpec, widthMeasureSpec);
         }
@@ -457,19 +512,9 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             final int id = imagecursor.getInt(image_column_index);
             final int rotate = imagecursor.getInt(image_column_orientation);
             if (isChecked(pos)) {
-                if (android.os.Build.VERSION.SDK_INT>=16) {
-                  imageView.setImageAlpha(128);
-                } else {
-                  imageView.setAlpha(128);	
-                }
-                imageView.setBackgroundColor(selectedColor);
+                addOverlay(convertView);
             } else {
-                if (android.os.Build.VERSION.SDK_INT>=16) {
-                  imageView.setImageAlpha(255);
-                } else {
-                  imageView.setAlpha(255);	
-                }
-                imageView.setBackgroundColor(Color.TRANSPARENT);
+                removeOverlay(convertView);
             }
             if (shouldRequestThumb) {
                 fetcher.fetch(Integer.valueOf(id), imageView, colWidth, rotate);
@@ -693,4 +738,40 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         
         return scale;
     }
+
+    private void openMaxImagesReachedDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle("Maximum " + maxImageCount + " Photos");
+        builder.setMessage("You can only select " + maxImageCount + " photos at a time.");
+        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int which) { 
+                dialog.cancel();
+            }
+        });
+        AlertDialog alert = builder.create();
+        alert.show();
+    }
+
+    private void addOverlay(View view) {
+        if(view == null) return;
+        ImageView imageView = (ImageView)view;
+        if (android.os.Build.VERSION.SDK_INT>=16) {
+          imageView.setImageAlpha(128);
+        } else {
+          imageView.setAlpha(128);
+        }
+        view.setBackgroundColor(selectedColor);
+
+    }
+    private void removeOverlay(View view) {
+        if(view == null) return;
+        ImageView imageView = (ImageView)view;
+        if (android.os.Build.VERSION.SDK_INT>=16) {
+            imageView.setImageAlpha(255);
+        } else {
+            imageView.setAlpha(255);
+        }
+        view.setBackgroundColor(Color.TRANSPARENT);
+    }
+
 }
