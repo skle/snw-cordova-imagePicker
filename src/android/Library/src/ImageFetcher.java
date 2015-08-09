@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.synconset;
+package th.co.snowwhite;
 
 import java.lang.ref.SoftReference;
 import java.lang.ref.WeakReference;

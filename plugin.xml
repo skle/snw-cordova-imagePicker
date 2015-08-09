@@ -60,12 +60,12 @@
 	<platform name="android">
 		<config-file target="res/xml/config.xml" parent="/*">
 			<feature name="ImagePicker">
-				<param name="android-package" value="com.synconset.ImagePicker"/>
+				<param name="android-package" value="th.co.snowwhite.ImagePicker"/>
 			</feature>
 		</config-file>
 		
 		<config-file target="AndroidManifest.xml" parent="/manifest/application">
-		    <activity android:label="@string/multi_app_name" android:name="com.synconset.MultiImageChooserActivity" android:theme="@android:style/Theme.Holo.Light">
+		    <activity android:label="@string/multi_app_name" android:name="th.co.snowwhite.MultiImageChooserActivity" android:theme="@android:style/Theme.Holo.Light">
             </activity>
 		</config-file>
 		
@@ -73,11 +73,11 @@
 		    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
 		</config-file>
 
-		<source-file src="src/android/com/synconset/ImagePicker/ImagePicker.java" target-dir="src/com/synconset" />
-		<source-file src="src/android/com/synconset/ImagePicker/FakeR.java" target-dir="src/com/synconset" />
+		<source-file src="src/android/th/co/snowwhite/ImagePicker/ImagePicker.java" target-dir="src/th/co/snowwhite" />
+		<source-file src="src/android/th/co/snowwhite/ImagePicker/FakeR.java" target-dir="src/th/co/snowwhite" />
 		
-		<source-file src="src/android/Library/src/ImageFetcher.java" target-dir="src/com/synconset"/>
-		<source-file src="src/android/Library/src/MultiImageChooserActivity.java" target-dir="src/com/synconset"/>
+		<source-file src="src/android/Library/src/ImageFetcher.java" target-dir="src/th/co/snowwhite"/>
+		<source-file src="src/android/Library/src/MultiImageChooserActivity.java" target-dir="src/th/co/snowwhite"/>
 		
         <source-file src="src/android/Library/res/anim/image_pop_in.xml" target-dir="res/anim"/>
 		<source-file src="src/android/Library/res/drawable/grid_background.xml" target-dir="res/drawable"/>

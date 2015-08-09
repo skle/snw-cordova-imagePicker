@@ -28,7 +28,7 @@
  *
  */
 
-package com.synconset;
+package th.co.snowwhite;
 
 import java.net.URI;
 import java.io.File;
@@ -42,7 +42,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import com.synconset.FakeR;
+import th.co.snowwhite.FakeR;
 import android.app.Activity;
 import android.app.ActionBar;
 import android.app.AlertDialog;
