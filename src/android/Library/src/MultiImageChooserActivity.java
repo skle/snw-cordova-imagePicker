@@ -33,8 +33,11 @@ package th.co.snowwhite;
 import java.net.URI;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FileInputStream;
+import java.nio.channels.FileChannel;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -83,6 +86,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
     public static final int NOLIMIT = -1;
     public static final String MAX_IMAGES_KEY = "MAX_IMAGES";
+    public static final String USE_ORIGINAL = "USE_ORIGINAL";
     public static final String WIDTH_KEY = "WIDTH";
     public static final String HEIGHT_KEY = "HEIGHT";
     public static final String QUALITY_KEY = "QUALITY";
@@ -102,6 +106,8 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
     private int maxImages;
     private int maxImageCount;
+
+    private Boolean useOriginal;
     
     private int desiredWidth;
     private int desiredHeight;
@@ -126,6 +132,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         fileNames.clear();
 
         maxImages = getIntent().getIntExtra(MAX_IMAGES_KEY, NOLIMIT);
+        useOriginal = getIntent().getBooleanExtra(USE_ORIGINAL, false);
         desiredWidth = getIntent().getIntExtra(WIDTH_KEY, 0);
         desiredHeight = getIntent().getIntExtra(HEIGHT_KEY, 0);
         quality = getIntent().getIntExtra(QUALITY_KEY, 0);
@@ -536,53 +543,62 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 Iterator<Entry<String, Integer>> i = fileNames.iterator();
                 Bitmap bmp;
                 while(i.hasNext()) {
+
                     Entry<String, Integer> imageInfo = i.next();
-                    File file = new File(imageInfo.getKey());
-                    int rotate = imageInfo.getValue().intValue();
-                    BitmapFactory.Options options = new BitmapFactory.Options();
-                    options.inSampleSize = 1;
-                    options.inJustDecodeBounds = true;
-                    BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-                    int width = options.outWidth;
-                    int height = options.outHeight;
-                    float scale = calculateScale(width, height);
-                    if (scale < 1) {
-                        int finalWidth = (int)(width * scale);
-                        int finalHeight = (int)(height * scale);
-                        int inSampleSize = calculateInSampleSize(options, finalWidth, finalHeight);
-                        options = new BitmapFactory.Options();
-                        options.inSampleSize = inSampleSize;
-                        try {
-                            bmp = this.tryToGetBitmap(file, options, rotate, true);
-                        } catch (OutOfMemoryError e) {
-                            options.inSampleSize = calculateNextSampleSize(options.inSampleSize);
-                            try {
-                                bmp = this.tryToGetBitmap(file, options, rotate, false);
-                            } catch (OutOfMemoryError e2) {
-                                throw new IOException("Unable to load image into memory.");
-                            }
-                        }
+                    File file = new File(imageInfo.getKey());                
+
+                    if(useOriginal) {
+
+                        file = this.storeOriginal(imageInfo.getKey(), file.getName());
+
                     } else {
-                        try {
-                            bmp = this.tryToGetBitmap(file, null, rotate, false);
-                        } catch(OutOfMemoryError e) {
+
+                        // Bitmap processing
+                        int rotate = imageInfo.getValue().intValue();
+                        BitmapFactory.Options options = new BitmapFactory.Options();
+                        options.inSampleSize = 1;
+                        options.inJustDecodeBounds = true;
+                        BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+                        int width = options.outWidth;
+                        int height = options.outHeight;
+                        float scale = calculateScale(width, height);
+                        if (scale < 1) {
+                            int finalWidth = (int)(width * scale);
+                            int finalHeight = (int)(height * scale);
+                            int inSampleSize = calculateInSampleSize(options, finalWidth, finalHeight);
                             options = new BitmapFactory.Options();
-                            options.inSampleSize = 2;
+                            options.inSampleSize = inSampleSize;
                             try {
-                                bmp = this.tryToGetBitmap(file, options, rotate, false);
-                            } catch(OutOfMemoryError e2) {
-                                options = new BitmapFactory.Options();
-                                options.inSampleSize = 4;
+                                bmp = this.tryToGetBitmap(file, options, rotate, true);
+                            } catch (OutOfMemoryError e) {
+                                options.inSampleSize = calculateNextSampleSize(options.inSampleSize);
                                 try {
                                     bmp = this.tryToGetBitmap(file, options, rotate, false);
-                                } catch (OutOfMemoryError e3) {
+                                } catch (OutOfMemoryError e2) {
                                     throw new IOException("Unable to load image into memory.");
                                 }
                             }
+                        } else {
+                            try {
+                                bmp = this.tryToGetBitmap(file, null, rotate, false);
+                            } catch(OutOfMemoryError e) {
+                                options = new BitmapFactory.Options();
+                                options.inSampleSize = 2;
+                                try {
+                                    bmp = this.tryToGetBitmap(file, options, rotate, false);
+                                } catch(OutOfMemoryError e2) {
+                                    options = new BitmapFactory.Options();
+                                    options.inSampleSize = 4;
+                                    try {
+                                        bmp = this.tryToGetBitmap(file, options, rotate, false);
+                                    } catch (OutOfMemoryError e3) {
+                                        throw new IOException("Unable to load image into memory.");
+                                    }
+                                }
+                            }
                         }
+                        file = this.storeImage(bmp, file.getName());
                     }
-
-                    file = this.storeImage(bmp, file.getName());
                     al.add(Uri.fromFile(file).toString());
                 }
                 return al;
@@ -660,7 +676,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         */
         private File storeImage(Bitmap bmp, String fileName) throws IOException {
             int index = fileName.lastIndexOf('.');
-            String name = "snw_"+fileName.substring(0, index);
+            String name = "snw_" + fileName.substring(0, index);
             String ext = fileName.substring(index);
             File file = File.createTempFile(name, ext);
             OutputStream outStream = new FileOutputStream(file);
@@ -670,6 +686,23 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 bmp.compress(Bitmap.CompressFormat.JPEG, quality, outStream);
             }
             outStream.flush();
+            outStream.close();
+            return file;
+        }
+
+        private File storeOriginal(String fullPath, String fileName) throws IOException {
+            int index = fileName.lastIndexOf('.');
+            String name = "snw_" + fileName.substring(0, index);
+            String ext = fileName.substring(index);
+            File file = File.createTempFile(name, ext);
+            File orig = new File(fullPath);
+
+            FileInputStream inStream = new FileInputStream(orig);
+            FileOutputStream outStream = new FileOutputStream(file);
+            FileChannel inChannel = inStream.getChannel();
+            FileChannel outChannel = outStream.getChannel();
+            inChannel.transferTo(0, inChannel.size(), outChannel);
+            inStream.close();
             outStream.close();
             return file;
         }
@@ -763,6 +796,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         view.setBackgroundColor(selectedColor);
 
     }
+
     private void removeOverlay(View view) {
         if(view == null) return;
         ImageView imageView = (ImageView)view;
