@@ -177,7 +177,7 @@
 
 - (void)updateCounter
 {
-    [self.selectionCounter setText:[NSString stringWithFormat:@"Choosen: %i", self.totalSelectedAssets]];
+    [self.selectionCounter setText:[NSString stringWithFormat:@"Chosen: %i", self.totalSelectedAssets]];
 }
 
 - (void)selectAllAction:(id)sender
