@@ -55,6 +55,32 @@
         [self.navigationItem setTitle:@"Loading..."];
 
         [self.navigationController setToolbarHidden:NO];
+        self.flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
+                                                                       target:nil
+                                                                       action:nil];
+        self.selectionCounter = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 100, self.navigationController.toolbar.frame.size.height)];
+        [self.selectionCounter setTextAlignment:NSTextAlignmentRight];
+        [self.selectionCounter setTextColor:[UIColor grayColor]];
+        [self updateCounter];
+        
+        UIButton *button =  [UIButton buttonWithType:UIButtonTypeSystem];
+        [button setFrame:CGRectMake(0, 0, 100, self.navigationController.toolbar.frame.size.height)];
+        [button addSubview:self.selectionCounter];
+        self.selectionCounterButton = [[UIBarButtonItem alloc]
+                                           initWithCustomView:button];
+        [self.selectionCounterButton setEnabled:false];
+        
+        
+        self.selectAllButton = [[UIBarButtonItem alloc]
+                                initWithTitle: @"Select All"
+                                style:UIBarButtonItemStylePlain
+                                target:self
+                                action:@selector(selectAllAction:)];
+        self.deselectAllButton = [[UIBarButtonItem alloc]
+                                  initWithTitle: @"Deselect All"
+                                  style:UIBarButtonItemStylePlain
+                                  target:self
+                                  action:@selector(deselectAllAction:)];
         [self deselectAllAction:nil];
     }
 
@@ -149,6 +175,11 @@
     }
 }
 
+- (void)updateCounter
+{
+    [self.selectionCounter setText:[NSString stringWithFormat:@"Total: %i", self.totalSelectedAssets]];
+}
+
 - (void)selectAllAction:(id)sender
 {
     for (ELCAsset *asset in [self.elcAssets reverseObjectEnumerator]) {
@@ -168,12 +199,7 @@
         }
     }
 
-    UIBarButtonItem *deselectAllButtonItem = [[UIBarButtonItem alloc]
-                                            initWithTitle: @"Deselect All"
-                                            style:UIBarButtonItemStylePlain
-                                            target:self
-                                            action:@selector(deselectAllAction:)];
-    [self setToolbarItems:[NSArray arrayWithObjects:deselectAllButtonItem, nil]];
+    [self setToolbarItems:[NSArray arrayWithObjects:self.deselectAllButton, self.flexSpace, self.selectionCounterButton, nil]];
 }
 
 - (void)deselectAllAction:(id)sender
@@ -190,13 +216,8 @@
             [cell toggleOverlays];
         }
     }
-    
-    UIBarButtonItem *selectAllButtonItem = [[UIBarButtonItem alloc]
-                                            initWithTitle: @"Select All"
-                                            style:UIBarButtonItemStylePlain
-                                            target:self
-                                            action:@selector(selectAllAction:)];
-    [self setToolbarItems:[NSArray arrayWithObjects:selectAllButtonItem, nil]];
+
+    [self setToolbarItems:[NSArray arrayWithObjects:self.selectAllButton, self.flexSpace, self.selectionCounterButton, nil]];
 }
 
 - (void)doneAction:(id)sender
@@ -288,7 +309,7 @@
     }
     
     [cell setAssets:[self assetsForIndexPath:indexPath] withDimension:self.assetDimension withPadding:self.assetPadding];
-    
+    cell.parent = self;
     return cell;
 }
 

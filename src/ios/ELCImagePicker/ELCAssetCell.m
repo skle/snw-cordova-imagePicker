@@ -82,6 +82,9 @@
     ELCAsset *asset = [_rowAssets objectAtIndex:index];
     UIImageView *overlayView = [_overlayViewArray objectAtIndex:index];
     overlayView.hidden = !asset.selected;
+    if ([self.parent respondsToSelector:@selector(updateCounter)]) {
+        [self.parent updateCounter];
+    }
 }
 
 - (void)toggleOverlays

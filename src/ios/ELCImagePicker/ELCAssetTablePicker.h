@@ -20,12 +20,18 @@
 @property (nonatomic, assign) BOOL singleSelection;
 @property (nonatomic, assign) BOOL immediateReturn;
 @property (nonatomic, weak) UIActivityIndicatorView *activityIndicator;
+@property (nonatomic, strong) UIBarButtonItem *selectAllButton;
+@property (nonatomic, strong) UIBarButtonItem *deselectAllButton;
+@property (nonatomic, strong) UIBarButtonItem *flexSpace;
+@property (nonatomic, strong) UIBarButtonItem *selectionCounterButton;
+@property (nonatomic, strong) UILabel *selectionCounter;
 
 // optional, can be used to filter the assets displayed
 @property(nonatomic, weak) id<ELCAssetPickerFilterDelegate> assetPickerFilterDelegate;
 
 - (int)totalSelectedAssets;
 - (void)preparePhotos;
+- (void)updateCounter;
 
 - (void)doneAction:(id)sender;
 - (void)selectAllAction:(id)sender;

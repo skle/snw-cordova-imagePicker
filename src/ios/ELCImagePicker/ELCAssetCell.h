@@ -6,9 +6,11 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "ELCAssetTablePicker.h"
 
 @interface ELCAssetCell : UITableViewCell
+
+@property (nonatomic, weak) ELCAssetTablePicker *parent;
 
 - (void)setAssets:(NSArray *)assets withDimension:(CGFloat)dimension withPadding:(int)padding;
 - (void)toggleOverlays;
