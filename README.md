@@ -8,7 +8,7 @@ features added.
 Added: 
 
     - Select All button (both iOS and Android)
-    - options.useOriginal (bool) can be used to gain a huge performance boost
+    - (bool) options.useOriginal can be used to gain a huge performance boost
       when you don't need to do any image manipulation (both iOS and Android)
     - Loading spinner (iOS)
     - Adaptive layout that supports iPhone 6, 6+ and possibly future models (iOS)
