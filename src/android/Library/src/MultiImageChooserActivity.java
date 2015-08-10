@@ -114,6 +114,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
     private int quality;
 
     private GridView gridView;
+    private TextView statusBarValue;
 
     private final ImageFetcher fetcher = new ImageFetcher();
 
@@ -174,6 +175,8 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         ia = new ImageAdapter(this);
         gridView.setAdapter(ia);
 
+        statusBarValue = (TextView) findViewById(fakeR.getId("id", "statusbar_value"));
+
         LoaderManager.enableDebugLogging(false);
         getLoaderManager().initLoader(CURSORLOADER_THUMBS, null, this);
         getLoaderManager().initLoader(CURSORLOADER_REAL, null, this);
@@ -211,6 +214,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         }
 
         checkStatus.put(position, isChecked);
+        updateSelectionCount();
         updateAcceptButton();
     }
 
@@ -292,7 +296,8 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         int position = 0;
         String name = null;
         int rotation = 0;
-        
+        maxImages = maxImageCount;
+
         if(actualimagecursor.moveToLast()) {
 
             do {
@@ -313,6 +318,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
             } while(actualimagecursor.moveToPrevious());
         }
+        updateSelectionCount();
         updateAcceptButton();
     }
 
@@ -341,8 +347,9 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 position++;
 
             } while(actualimagecursor.moveToNext());
-            maxImages = getIntent().getIntExtra(MAX_IMAGES_KEY, NOLIMIT);
+            maxImages = maxImageCount;
         }
+        updateSelectionCount();
         updateAcceptButton();
     }
 
@@ -370,6 +377,11 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         getActionBar().getCustomView().findViewById(fakeR.getId("id", "actionbar_done")).setEnabled(fileNames.size() != 0);
     }
 
+    private void updateSelectionCount() {
+        int chosen = maxImageCount - maxImages;
+        statusBarValue.setText(String.valueOf(chosen));
+    }
+
     private void setupHeader() {
         // From Roman Nkk's code
         // https://plus.google.com/113735310430199015092/posts/R49wVvcDoEW
@@ -391,7 +403,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
          */
         LayoutInflater inflater = (LayoutInflater) getActionBar().getThemedContext().getSystemService(
                 LAYOUT_INFLATER_SERVICE);
-        final View customActionBarView = inflater.inflate(fakeR.getId("layout", "actionbar_custom_view_done_discard"), null);
+        final View customActionBarView = inflater.inflate(fakeR.getId("layout", "actionbar"), null);
         customActionBarView.findViewById(fakeR.getId("id", "actionbar_done")).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

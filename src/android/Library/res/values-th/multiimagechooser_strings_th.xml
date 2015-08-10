@@ -8,4 +8,5 @@
     <string name="all">ทั้งหมด</string>
     <string name="clear">เริ่มใหม่</string>
     <string name="done">ตกลง</string>
+    <string name="chosen">เลือกแล้ว: </string>
 </resources>
