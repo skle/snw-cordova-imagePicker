@@ -61,6 +61,7 @@
     NSUInteger buffered = 0;
     NSData* data = nil;
     NSString* docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
+    NSError* err = nil;
     NSFileManager* fileMgr = [[NSFileManager alloc] init];
     NSString* filePath;
     int fileName = 1;
@@ -75,19 +76,19 @@
         @autoreleasepool {
             ALAssetRepresentation *assetRep = [asset defaultRepresentation];
             CGImageRef imgRef = NULL;
-            
+
             if(self.useOriginal) {
-                
+
                 buffer = (Byte*)malloc(assetRep.size);
                 buffered = [assetRep getBytes:buffer fromOffset:0 length:assetRep.size error:nil];
                 data = [NSData dataWithBytesNoCopy:buffer length:buffered freeWhenDone:YES];
-                
+
                 if ([assetRep.UTI isEqualToString:@"public.png"]) {
                     fileExtension = @"png";
                 } else if([assetRep.UTI isEqualToString:@"public.tif"] || [assetRep.UTI isEqualToString:@"public.tiff"]) {
                     fileExtension = @"tiff";
                 }
-                
+
             } else {
                 //defaultRepresentation returns image as it appears in photo picker, rotated and sized,
                 //so use UIImageOrientationUp when creating our image below.
@@ -95,7 +96,7 @@
                     imgRef = [assetRep fullResolutionImage];
                     
                     NSNumber *orientationValue = [asset valueForProperty:@"ALAssetPropertyOrientation"];
-                    if (orientationValue != nil) {
+                        if (orientationValue != nil) {
                         orientation = [orientationValue intValue];
                     }
                 } else {
@@ -109,43 +110,29 @@
                     UIImage* scaledImage = [self imageByScalingNotCroppingForSize:image toSize:targetSize];
                     data = UIImageJPEGRepresentation(scaledImage, self.quality/100.0f);
                 }
-                
+
                 fileExtension = @"jpg";
                 
             }
-            
+
             do {
                 filePath = [NSString stringWithFormat:@"%@/%@%03d.%@", docsPath, CDV_PHOTO_PREFIX, fileName++, fileExtension];
             } while ([fileMgr fileExistsAtPath:filePath]);
             
-            [resultStrings addObject:[[NSURL fileURLWithPath:filePath] absoluteString]];
-            
-            dispatch_queue_t dispatchQueue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
-            dispatch_async(dispatchQueue, ^(void) {
-                // Your code here
-                NSError* err = nil;
-                
-                if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
-                    CDVPluginResult* errorResult = nil;
-                    errorResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        // Break
-                        [self returnResult:errorResult];
-                    });
-                }
-            });
+            if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
+                result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
+                break;
+            } else {
+                [resultStrings addObject:[[NSURL fileURLWithPath:filePath] absoluteString]];
+            }
         }
-        
+
     }
     
     if (nil == result) {
         result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultStrings];
     }
-    
-    [self returnResult:result];
-}
 
-- (void)returnResult:(CDVPluginResult *)result {
     [self.viewController dismissViewControllerAnimated:YES completion:nil];
     [self.commandDelegate sendPluginResult:result callbackId:self.callbackId];
 }
