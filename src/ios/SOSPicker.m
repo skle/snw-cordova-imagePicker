@@ -21,6 +21,7 @@
 	NSDictionary *options = [command.arguments objectAtIndex: 0];
     NSInteger maximumImagesCount = [[options objectForKey:@"maximumImagesCount"] integerValue];
     self.useOriginal = [[options objectForKey:@"useOriginal"] boolValue];
+    self.createThumbnail = [[options objectForKey:@"createThumbnail"] boolValue];
     self.width = [[options objectForKey:@"width"] integerValue];
     self.height = [[options objectForKey:@"height"] integerValue];
     self.quality = [[options objectForKey:@"quality"] integerValue];
@@ -60,10 +61,12 @@
     Byte *buffer = 0;
     NSUInteger buffered = 0;
     NSData* data = nil;
+    NSData* thumbData = nil;
     NSString* docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
     NSError* err = nil;
     NSFileManager* fileMgr = [[NSFileManager alloc] init];
     NSString* filePath;
+    NSString* thumbPath;
     int fileName = 1;
     NSString *fileExtension = @"jpg";
     ALAsset* asset = nil;
@@ -76,19 +79,19 @@
         @autoreleasepool {
             ALAssetRepresentation *assetRep = [asset defaultRepresentation];
             CGImageRef imgRef = NULL;
-
+            
             if(self.useOriginal) {
-
+                
                 buffer = (Byte*)malloc(assetRep.size);
                 buffered = [assetRep getBytes:buffer fromOffset:0 length:assetRep.size error:nil];
                 data = [NSData dataWithBytesNoCopy:buffer length:buffered freeWhenDone:YES];
-
+                
                 if ([assetRep.UTI isEqualToString:@"public.png"]) {
                     fileExtension = @"png";
-                } else if([assetRep.UTI isEqualToString:@"public.tif"] || [assetRep.UTI isEqualToString:@"public.tiff"]) {
-                    fileExtension = @"tiff";
+                } else if([assetRep.UTI isEqualToString:@"public.jpg"]) {
+                    fileExtension = @"jpg";
                 }
-
+                
             } else {
                 //defaultRepresentation returns image as it appears in photo picker, rotated and sized,
                 //so use UIImageOrientationUp when creating our image below.
@@ -96,7 +99,7 @@
                     imgRef = [assetRep fullResolutionImage];
                     
                     NSNumber *orientationValue = [asset valueForProperty:@"ALAssetPropertyOrientation"];
-                        if (orientationValue != nil) {
+                    if (orientationValue != nil) {
                         orientation = [orientationValue intValue];
                     }
                 } else {
@@ -110,29 +113,50 @@
                     UIImage* scaledImage = [self imageByScalingNotCroppingForSize:image toSize:targetSize];
                     data = UIImageJPEGRepresentation(scaledImage, self.quality/100.0f);
                 }
-
+                
                 fileExtension = @"jpg";
                 
             }
-
+            
             do {
                 filePath = [NSString stringWithFormat:@"%@/%@%03d.%@", docsPath, CDV_PHOTO_PREFIX, fileName++, fileExtension];
+                thumbPath = [NSString stringWithFormat:@"%@/thumb_%@%03d.%@", docsPath, CDV_PHOTO_PREFIX, fileName++, fileExtension];
             } while ([fileMgr fileExistsAtPath:filePath]);
             
             if (![data writeToFile:filePath options:NSAtomicWrite error:&err]) {
                 result = [CDVPluginResult resultWithStatus:CDVCommandStatus_IO_EXCEPTION messageAsString:[err localizedDescription]];
                 break;
             } else {
+
+                if (self.createThumbnail) {
+                    
+                    imgRef = [asset thumbnail];
+                    NSNumber *orientationValue = [asset valueForProperty:@"ALAssetPropertyOrientation"];
+                    if (orientationValue != nil) {
+                        orientation = [orientationValue intValue];
+                    }
+                    if([fileExtension isEqualToString:@"jpg"]) {
+                        UIImage* image = [UIImage imageWithCGImage:imgRef scale:1.0f orientation:orientation];
+                        thumbData = UIImageJPEGRepresentation(image, 75.0f/100.0f);
+                    } else if([fileExtension isEqualToString:@"png"]) {
+                        UIImage* image = [UIImage imageWithCGImage:imgRef scale:1.0f orientation:orientation];
+                        thumbData = UIImagePNGRepresentation(image);
+                    }
+                    
+                    [thumbData writeToFile:thumbPath options:NSAtomicWrite error:&err];
+                    
+                }
+
                 [resultStrings addObject:[[NSURL fileURLWithPath:filePath] absoluteString]];
             }
         }
-
+        
     }
     
     if (nil == result) {
         result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:resultStrings];
     }
-
+    
     [self.viewController dismissViewControllerAnimated:YES completion:nil];
     [self.commandDelegate sendPluginResult:result callbackId:self.callbackId];
 }

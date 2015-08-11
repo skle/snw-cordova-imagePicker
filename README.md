@@ -11,6 +11,8 @@ Added:
     - Selected count (both iOS and Android)
     - (bool) options.useOriginal can be used to gain a huge performance boost
       when you don't need to do any image manipulation (both iOS and Android)
+    - (bool) options.createThumbnail to create thumbnails with name begins with
+      "thumb_" (iOS)
     - Loading spinner (iOS)
     - Adaptive layout that supports iPhone 6, 6+ and possibly future models (iOS)
     - Cosmetic changes reflecting iOS 8 (iOS)
