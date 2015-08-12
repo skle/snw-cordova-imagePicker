@@ -87,6 +87,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
     public static final int NOLIMIT = -1;
     public static final String MAX_IMAGES_KEY = "MAX_IMAGES";
     public static final String USE_ORIGINAL = "USE_ORIGINAL";
+    public static final String CREATE_THUMBNAIL = "CREATE_THUMBNAIL";
     public static final String WIDTH_KEY = "WIDTH";
     public static final String HEIGHT_KEY = "HEIGHT";
     public static final String QUALITY_KEY = "QUALITY";
@@ -108,6 +109,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
     private int maxImageCount;
 
     private Boolean useOriginal;
+    private Boolean createThumbnail;
     
     private int desiredWidth;
     private int desiredHeight;
@@ -134,6 +136,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
         maxImages = getIntent().getIntExtra(MAX_IMAGES_KEY, NOLIMIT);
         useOriginal = getIntent().getBooleanExtra(USE_ORIGINAL, false);
+        createThumbnail = getIntent().getBooleanExtra(CREATE_THUMBNAIL, false);
         desiredWidth = getIntent().getIntExtra(WIDTH_KEY, 0);
         desiredHeight = getIntent().getIntExtra(HEIGHT_KEY, 0);
         quality = getIntent().getIntExtra(QUALITY_KEY, 0);
@@ -565,50 +568,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
                     } else {
 
-                        // Bitmap processing
-                        int rotate = imageInfo.getValue().intValue();
-                        BitmapFactory.Options options = new BitmapFactory.Options();
-                        options.inSampleSize = 1;
-                        options.inJustDecodeBounds = true;
-                        BitmapFactory.decodeFile(file.getAbsolutePath(), options);
-                        int width = options.outWidth;
-                        int height = options.outHeight;
-                        float scale = calculateScale(width, height);
-                        if (scale < 1) {
-                            int finalWidth = (int)(width * scale);
-                            int finalHeight = (int)(height * scale);
-                            int inSampleSize = calculateInSampleSize(options, finalWidth, finalHeight);
-                            options = new BitmapFactory.Options();
-                            options.inSampleSize = inSampleSize;
-                            try {
-                                bmp = this.tryToGetBitmap(file, options, rotate, true);
-                            } catch (OutOfMemoryError e) {
-                                options.inSampleSize = calculateNextSampleSize(options.inSampleSize);
-                                try {
-                                    bmp = this.tryToGetBitmap(file, options, rotate, false);
-                                } catch (OutOfMemoryError e2) {
-                                    throw new IOException("Unable to load image into memory.");
-                                }
-                            }
-                        } else {
-                            try {
-                                bmp = this.tryToGetBitmap(file, null, rotate, false);
-                            } catch(OutOfMemoryError e) {
-                                options = new BitmapFactory.Options();
-                                options.inSampleSize = 2;
-                                try {
-                                    bmp = this.tryToGetBitmap(file, options, rotate, false);
-                                } catch(OutOfMemoryError e2) {
-                                    options = new BitmapFactory.Options();
-                                    options.inSampleSize = 4;
-                                    try {
-                                        bmp = this.tryToGetBitmap(file, options, rotate, false);
-                                    } catch (OutOfMemoryError e3) {
-                                        throw new IOException("Unable to load image into memory.");
-                                    }
-                                }
-                            }
-                        }
+                        bmp = this.processBitmap(file, imageInfo);
                         file = this.storeImage(bmp, file.getName());
                     }
                     al.add(Uri.fromFile(file).toString());
@@ -653,6 +613,55 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
             progress.dismiss();
             finish();
+        }
+
+        private Bitmap processBitmap(File file, Entry<String, Integer> imageInfo) throws IOException, OutOfMemoryError {
+            Bitmap bmp;
+            // Bitmap processing
+            int rotate = imageInfo.getValue().intValue();
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 1;
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(file.getAbsolutePath(), options);
+            int width = options.outWidth;
+            int height = options.outHeight;
+            float scale = calculateScale(width, height);
+            if (scale < 1) {
+                int finalWidth = (int)(width * scale);
+                int finalHeight = (int)(height * scale);
+                int inSampleSize = calculateInSampleSize(options, finalWidth, finalHeight);
+                options = new BitmapFactory.Options();
+                options.inSampleSize = inSampleSize;
+                try {
+                    bmp = this.tryToGetBitmap(file, options, rotate, true);
+                } catch (OutOfMemoryError e) {
+                    options.inSampleSize = calculateNextSampleSize(options.inSampleSize);
+                    try {
+                        bmp = this.tryToGetBitmap(file, options, rotate, false);
+                    } catch (OutOfMemoryError e2) {
+                        throw new IOException("Unable to load image into memory.");
+                    }
+                }
+            } else {
+                try {
+                    bmp = this.tryToGetBitmap(file, null, rotate, false);
+                } catch(OutOfMemoryError e) {
+                    options = new BitmapFactory.Options();
+                    options.inSampleSize = 2;
+                    try {
+                        bmp = this.tryToGetBitmap(file, options, rotate, false);
+                    } catch(OutOfMemoryError e2) {
+                        options = new BitmapFactory.Options();
+                        options.inSampleSize = 4;
+                        try {
+                            bmp = this.tryToGetBitmap(file, options, rotate, false);
+                        } catch (OutOfMemoryError e3) {
+                            throw new IOException("Unable to load image into memory.");
+                        }
+                    }
+                }
+            }
+            return bmp;
         }
 
         private Bitmap tryToGetBitmap(File file, BitmapFactory.Options options, int rotate, boolean shouldScale) throws IOException, OutOfMemoryError {
