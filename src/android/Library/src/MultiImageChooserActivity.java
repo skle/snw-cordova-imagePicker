@@ -560,20 +560,31 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 while(i.hasNext()) {
 
                     Entry<String, Integer> imageInfo = i.next();
-                    File file = new File(imageInfo.getKey());                
+                    File originalFile = new File(imageInfo.getKey());
+                    File savedFile = null;
+                    File thumbFile = null;
 
                     if(useOriginal) {
 
-                        file = this.storeOriginal(imageInfo.getKey(), file.getName());
+                        savedFile = this.storeOriginal(imageInfo.getKey(), originalFile.getName());
 
                     } else {
 
-                        bmp = this.processBitmap(file, imageInfo);
-                        file = this.storeImage(bmp, file.getName());
+                        bmp = this.processBitmap(originalFile, imageInfo);
+                        savedFile = this.storeImage(bmp, originalFile.getName(), false);
+
                     }
-                    al.add(Uri.fromFile(file).toString());
+                    if (createThumbnail) {
+
+                        bmp = this.getThumbnailBitmap(originalFile.getAbsolutePath());
+                        if (bmp != null) thumbFile = this.storeImage(bmp, savedFile.getName(), true);
+                    }
+
+                    al.add(Uri.fromFile(savedFile).toString());
                 }
+
                 return al;
+
             } catch(IOException e) {
                 try {
                     asyncTaskError = e;
@@ -664,6 +675,17 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             return bmp;
         }
 
+        private Bitmap getThumbnailBitmap(String path){
+            Cursor ca = getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, new String[] { MediaStore.MediaColumns._ID }, MediaStore.MediaColumns.DATA + "=?", new String[] {path}, null);
+            if (ca != null && ca.moveToFirst()) {
+                int id = ca.getInt(ca.getColumnIndex(MediaStore.MediaColumns._ID));
+                ca.close();
+                return MediaStore.Images.Thumbnails.getThumbnail(getContentResolver(), id, MediaStore.Images.Thumbnails.MICRO_KIND, null );
+            }
+            ca.close();
+            return null;
+        }
+
         private Bitmap tryToGetBitmap(File file, BitmapFactory.Options options, int rotate, boolean shouldScale) throws IOException, OutOfMemoryError {
             Bitmap bmp;
             if (options == null) {
@@ -695,11 +717,11 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         * The software is open source, MIT Licensed.
         * Copyright (C) 2012, webXells GmbH All Rights Reserved.
         */
-        private File storeImage(Bitmap bmp, String fileName) throws IOException {
+        private File storeImage(Bitmap bmp, String fileName, boolean isThumb) throws IOException {
             int index = fileName.lastIndexOf('.');
-            String name = "snw_" + fileName.substring(0, index);
+            String name = (isThumb ? "thumb_":"snw_") + fileName.substring(0, index);
             String ext = fileName.substring(index);
-            File file = File.createTempFile(name, ext);
+            File file = isThumb ? (new File(System.getProperty("java.io.tmpdir"), name + ext)):(File.createTempFile(name, ext));
             OutputStream outStream = new FileOutputStream(file);
             if (ext.compareToIgnoreCase(".png") == 0) {
                 bmp.compress(Bitmap.CompressFormat.PNG, quality, outStream);
