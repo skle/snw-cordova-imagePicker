@@ -301,7 +301,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         int rotation = 0;
         maxImages = maxImageCount;
 
-        if(actualimagecursor.moveToLast()) {
+        if(actualimagecursor.moveToFirst()) {
 
             do {
 
@@ -319,7 +319,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 position++;
                 maxImages--;
 
-            } while(actualimagecursor.moveToPrevious());
+            } while(actualimagecursor.moveToNext());
         }
         updateSelectionCount();
         updateAcceptButton();
