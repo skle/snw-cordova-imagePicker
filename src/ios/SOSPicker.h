@@ -19,6 +19,7 @@
 
 @property (nonatomic, assign) BOOL useOriginal;
 @property (nonatomic, assign) BOOL createThumbnail;
+@property (nonatomic, assign) BOOL saveToDataDirectory;
 @property (nonatomic, assign) NSInteger width;
 @property (nonatomic, assign) NSInteger height;
 @property (nonatomic, assign) NSInteger quality;

@@ -22,6 +22,7 @@
     NSInteger maximumImagesCount = [[options objectForKey:@"maximumImagesCount"] integerValue];
     self.useOriginal = [[options objectForKey:@"useOriginal"] boolValue];
     self.createThumbnail = [[options objectForKey:@"createThumbnail"] boolValue];
+    self.saveToDataDirectory = [[options objectForKey:@"saveToDataDirectory"] boolValue];
     self.width = [[options objectForKey:@"width"] integerValue];
     self.height = [[options objectForKey:@"height"] integerValue];
     self.quality = [[options objectForKey:@"quality"] integerValue];
@@ -62,7 +63,11 @@
     NSUInteger buffered = 0;
     NSData* data = nil;
     NSData* thumbData = nil;
-    NSString* docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
+    NSString *docsPath = [NSTemporaryDirectory()stringByStandardizingPath];
+    if (self.saveToDataDirectory) {
+        NSString *libPath = [NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES) objectAtIndex:0];
+        docsPath = [libPath stringByAppendingPathComponent:@"NoCloud"];
+    }
     NSError* err = nil;
     NSFileManager* fileMgr = [[NSFileManager alloc] init];
     NSString* filePath;
