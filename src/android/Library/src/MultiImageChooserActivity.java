@@ -188,8 +188,8 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         setupHeader();
         updateAcceptButton();
         progress = new ProgressDialog(this);
-        progress.setTitle("Processing Images");
-        progress.setMessage("This may take a few moments");
+        progress.setTitle(getString(fakeR.getId("string", "processing")));
+        progress.setMessage(getString(fakeR.getId("string", "processing_time")));
     }
     
     @Override
@@ -830,9 +830,9 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
     private void openMaxImagesReachedDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Maximum " + maxImageCount + " Photos");
-        builder.setMessage("You can only select " + maxImageCount + " photos at a time.");
-        builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+        builder.setTitle(getString(fakeR.getId("string", "max_1")) + " " + maxImageCount + " " + getString(fakeR.getId("string", "max_2")));
+        builder.setMessage(getString(fakeR.getId("string", "max_3")) + " " + maxImageCount + " " + getString(fakeR.getId("string", "max_4")));
+        builder.setPositiveButton(getString(fakeR.getId("string", "done")), new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int which) { 
                 dialog.cancel();
             }

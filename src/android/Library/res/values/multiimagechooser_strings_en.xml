@@ -9,4 +9,10 @@
     <string name="clear">Clear</string>
     <string name="done">OK</string>
     <string name="chosen">Chosen: </string>
+    <string name="processing">Processing Images</string>
+    <string name="processing_time">This may take a few moments</string>
+    <string name="max_1">Maximum</string>
+    <string name="max_2">Photos</string>
+    <string name="max_3">You can only select </string>
+    <string name="max_4">photos at a time. You can add more afterward.</string>
 </resources>
