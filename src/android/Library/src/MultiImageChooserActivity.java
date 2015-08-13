@@ -56,6 +56,7 @@ import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -131,6 +132,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         fakeR = new FakeR(this);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(fakeR.getId("layout", "multiselectorgrid"));
         fileNames.clear();
 
@@ -277,6 +279,17 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         } else if (loader.getId() == CURSORLOADER_REAL) {
             actualimagecursor = null;
         }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+    }
+
+
+    @Override
+    protected void onPause() {
+        super.onPause();
     }
     
     public void cancelClicked(View ignored) {
