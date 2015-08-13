@@ -13,6 +13,6 @@
     <string name="processing_time">อาจใช้เวลาสักครู่</string>
     <string name="max_1">เลือกได้</string>
     <string name="max_2">ภาพ</string>
-    <string name="max_3">ลูกค้าสามารถเลือกภาพได้ ครั้งละไม่เกิน </string>
+    <string name="max_3">ลูกค้าสามารถเลือกภาพได้ ครั้งละไม่เกิน</string>
     <string name="max_4">ภาพ แล้วค่อยเพิ่มอีกทีหลังได้ค่ะ</string>
 </resources>

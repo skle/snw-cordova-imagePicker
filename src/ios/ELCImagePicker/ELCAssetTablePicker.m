@@ -52,7 +52,7 @@
                                            target:self
                                            action:@selector(doneAction:)];        
         [self.navigationItem setRightBarButtonItem:doneButtonItem];
-        [self.navigationItem setTitle:@"Loading..."];
+        [self.navigationItem setTitle:NSLocalizedString(@"Loading", nil)];
 
         [self.navigationController setToolbarHidden:NO];
         self.flexSpace = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFlexibleSpace
@@ -72,12 +72,12 @@
         
         
         self.selectAllButton = [[UIBarButtonItem alloc]
-                                initWithTitle: @"Select All"
+                                initWithTitle: NSLocalizedString(@"Select All", nil)
                                 style:UIBarButtonItemStylePlain
                                 target:self
                                 action:@selector(selectAllAction:)];
         self.deselectAllButton = [[UIBarButtonItem alloc]
-                                  initWithTitle: @"Deselect All"
+                                  initWithTitle: NSLocalizedString(@"Deselect All", nil)
                                   style:UIBarButtonItemStylePlain
                                   target:self
                                   action:@selector(deselectAllAction:)];
@@ -170,14 +170,14 @@
                                                       animated:NO];
             }
             
-            [self.navigationItem setTitle:self.singleSelection ? @"Pick Photo" : @"Pick Photos"];
+            [self.navigationItem setTitle:self.singleSelection ? NSLocalizedString(@"Pick Photo", nil) : NSLocalizedString(@"Pick Photos", nil)];
         });
     }
 }
 
 - (void)updateCounter
 {
-    [self.selectionCounter setText:[NSString stringWithFormat:@"Chosen: %i", self.totalSelectedAssets]];
+    [self.selectionCounter setText:[NSString stringWithFormat:NSLocalizedString(@"Chosen %d", nil), self.totalSelectedAssets]];
 }
 
 - (void)selectAllAction:(id)sender
