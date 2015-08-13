@@ -49,14 +49,12 @@
 		<header-file src="src/ios/ELCImagePicker/ELCImagePickerController.h" />
 		<source-file src="src/ios/ELCImagePicker/ELCImagePickerController.m" />
 
-		<resource-file src="src/ios/ELCImagePicker/Resources" />
-		<!-- <resource-file src="src/ios/ELCImagePicker/Resources/ELCAlbumPickerController.xib" />
+		<resource-file src="src/ios/ELCImagePicker/Resources/ELCAlbumPickerController.xib" />
 		<resource-file src="src/ios/ELCImagePicker/Resources/ELCAssetPicker.xib" />
 		<resource-file src="src/ios/ELCImagePicker/Resources/ELCAssetTablePicker.xib" />
 		<resource-file src="src/ios/ELCImagePicker/Resources/Overlay.png" />
 		<resource-file src="src/ios/ELCImagePicker/Resources/Overlay@2x.png" />
-		<resource-file src="src/ios/ELCImagePicker/Resources/en.lproj/Localizable.strings" target="*/en.lproj/" />
-		<resource-file src="src/ios/ELCImagePicker/Resources/th.lproj/Localizable.strings" target="*/th.lproj/" /> -->
+		<resource-file src="src/ios/ELCImagePicker/Resources/l10n" />
 	</platform>
 
 	<!-- android -->
