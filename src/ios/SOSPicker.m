@@ -125,7 +125,7 @@
             
             do {
                 filePath = [NSString stringWithFormat:@"%@/%@%04d.%@", docsPath, CDV_PHOTO_PREFIX, fileName, fileExtension];
-                thumbPath = [NSString stringWithFormat:@"%@/thumb_%@%03d.%@", docsPath, CDV_PHOTO_PREFIX, fileName, fileExtension];
+                thumbPath = [NSString stringWithFormat:@"%@/thumb_%@%04d.%@", docsPath, CDV_PHOTO_PREFIX, fileName, fileExtension];
                 fileName++;
             } while ([fileMgr fileExistsAtPath:filePath]);
             
