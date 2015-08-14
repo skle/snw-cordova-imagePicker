@@ -89,6 +89,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
     public static final String MAX_IMAGES_KEY = "MAX_IMAGES";
     public static final String USE_ORIGINAL = "USE_ORIGINAL";
     public static final String CREATE_THUMBNAIL = "CREATE_THUMBNAIL";
+    public static final String SAVE_TO_DATADIRECTORY = "SAVE_TO_DATADIRECTORY";
     public static final String WIDTH_KEY = "WIDTH";
     public static final String HEIGHT_KEY = "HEIGHT";
     public static final String QUALITY_KEY = "QUALITY";
@@ -111,6 +112,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
     private Boolean useOriginal;
     private Boolean createThumbnail;
+    private Boolean saveToDataDirectory;
     
     private int desiredWidth;
     private int desiredHeight;
@@ -139,6 +141,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         maxImages = getIntent().getIntExtra(MAX_IMAGES_KEY, NOLIMIT);
         useOriginal = getIntent().getBooleanExtra(USE_ORIGINAL, false);
         createThumbnail = getIntent().getBooleanExtra(CREATE_THUMBNAIL, false);
+        saveToDataDirectory = getIntent().getBooleanExtra(SAVE_TO_DATADIRECTORY, false);
         desiredWidth = getIntent().getIntExtra(WIDTH_KEY, 0);
         desiredHeight = getIntent().getIntExtra(HEIGHT_KEY, 0);
         quality = getIntent().getIntExtra(QUALITY_KEY, 0);
@@ -730,12 +733,43 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         * The software is open source, MIT Licensed.
         * Copyright (C) 2012, webXells GmbH All Rights Reserved.
         */
+        private File destinationFile(String fileName, boolean isThumb) {
+
+            File destDir = null;      
+
+            if(saveToDataDirectory) {
+                destDir = MultiImageChooserActivity.this.getFilesDir();
+            } else {
+                destDir = MultiImageChooserActivity.this.getCacheDir();
+            }
+            
+            int dotIndex = fileName.lastIndexOf('.');
+            String name = fileName.substring(0, dotIndex);
+            String ext = fileName.substring(dotIndex);
+            int destFileName = 1;
+            File destFile = null;
+
+            do {
+                if(isThumb) {
+                    destFile = new File(destDir, "thumb_" + name + ext);
+                } else {
+                    destFile = new File(destDir, "cdv_photo_" + String.format("%04d", destFileName) + ext);    
+                }
+                destFileName++;
+            } while (destFile.exists());
+
+            return destFile;
+            
+        }
+
         private File storeImage(Bitmap bmp, String fileName, boolean isThumb) throws IOException {
-            int index = fileName.lastIndexOf('.');
-            String name = (isThumb ? "thumb_":"snw_") + fileName.substring(0, index);
-            String ext = fileName.substring(index);
-            File file = isThumb ? (new File(System.getProperty("java.io.tmpdir"), name + ext)):(File.createTempFile(name, ext));
+            
+            int dotIndex = fileName.lastIndexOf('.');
+            String ext = fileName.substring(dotIndex);
+
+            File file = destinationFile(fileName, isThumb);
             OutputStream outStream = new FileOutputStream(file);
+
             if (ext.compareToIgnoreCase(".png") == 0) {
                 bmp.compress(Bitmap.CompressFormat.PNG, quality, outStream);
             } else {
@@ -743,16 +777,13 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             }
             outStream.flush();
             outStream.close();
+
             return file;
         }
 
         private File storeOriginal(String fullPath, String fileName) throws IOException {
-            int index = fileName.lastIndexOf('.');
-            String name = "snw_" + fileName.substring(0, index);
-            String ext = fileName.substring(index);
-            File file = File.createTempFile(name, ext);
             File orig = new File(fullPath);
-
+            File file = destinationFile(fileName, false);
             FileInputStream inStream = new FileInputStream(orig);
             FileOutputStream outStream = new FileOutputStream(file);
             FileChannel inChannel = inStream.getChannel();
@@ -760,6 +791,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             inChannel.transferTo(0, inChannel.size(), outChannel);
             inStream.close();
             outStream.close();
+
             return file;
         }
     

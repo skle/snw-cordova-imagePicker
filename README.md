@@ -13,7 +13,7 @@ Added:
       when you don't need to do any image manipulation (both iOS and Android)
     - (bool) options.createThumbnail to create thumbnails with name begins with
       "thumb_" (both iOS and Android)
-    - (bool) options.saveToDataDirectory let you save the files to cordova.file.
+    - (bool) options.saveToDataDirectory lets you save the files to cordova.file.
       dataDirectory (Library/NoCloud on iOS) and (<app-id>/files on Android)
       instead of temporary dir. (both iOS and Android)
     - Loading spinner (iOS)

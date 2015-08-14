@@ -30,6 +30,7 @@ public class ImagePicker extends CordovaPlugin {
 			int max = 20;
 			Boolean useOriginal = false;
 			Boolean createThumbnail = false;
+			Boolean saveToDataDirectory = false;
 			int desiredWidth = 0;
 			int desiredHeight = 0;
 			int quality = 100;
@@ -41,6 +42,9 @@ public class ImagePicker extends CordovaPlugin {
 			}
 			if (this.params.has("createThumbnail")) {
 				createThumbnail = this.params.getBoolean("createThumbnail");
+			}
+			if (this.params.has("saveToDataDirectory")) {
+				saveToDataDirectory = this.params.getBoolean("saveToDataDirectory");
 			}
 			if (this.params.has("width")) {
 				desiredWidth = this.params.getInt("width");
@@ -54,6 +58,7 @@ public class ImagePicker extends CordovaPlugin {
 			intent.putExtra("MAX_IMAGES", max);
 			intent.putExtra("USE_ORIGINAL", useOriginal);
 			intent.putExtra("CREATE_THUMBNAIL", createThumbnail);
+			intent.putExtra("SAVE_TO_DATADIRECTORY", saveToDataDirectory);
 			intent.putExtra("WIDTH", desiredWidth);
 			intent.putExtra("HEIGHT", desiredHeight);
 			intent.putExtra("QUALITY", quality);
