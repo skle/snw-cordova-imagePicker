@@ -11,7 +11,7 @@
 #import "ELCImagePickerController.h"
 #import "ELCAssetTablePicker.h"
 
-#define CDV_PHOTO_PREFIX @"cdv_photo_"
+#define CDV_PHOTO_PREFIX @"snw_photo_"
 
 @implementation SOSPicker
 

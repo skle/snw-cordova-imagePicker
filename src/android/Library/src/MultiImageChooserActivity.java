@@ -753,7 +753,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 if(isThumb) {
                     destFile = new File(destDir, "thumb_" + name + ext);
                 } else {
-                    destFile = new File(destDir, "cdv_photo_" + String.format("%04d", destFileName) + ext);    
+                    destFile = new File(destDir, "snw_photo_" + String.format("%04d", destFileName) + ext);    
                 }
                 destFileName++;
             } while (destFile.exists());
