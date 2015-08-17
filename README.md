@@ -7,20 +7,21 @@ added enhancements.
 
 Added: 
 
-    - Select All button (both iOS and Android)
-    - Selected count (both iOS and Android)
+    - Select all button (both iOS and Android)
+    - Selected images counter (both iOS and Android)
     - (bool) options.useOriginal can be used to gain a huge performance boost
       when you don't need to do any image manipulation (both iOS and Android)
     - (bool) options.createThumbnail to create thumbnails with name begins with
       "thumb_" (both iOS and Android)
-    - (bool) options.saveToDataDirectory lets you save the files to cordova.file.
-      dataDirectory (Library/NoCloud on iOS) and (<app-id>/files on Android)
-      instead of temporary dir. (both iOS and Android)
+    - (bool) options.saveToDataDirectory lets you save selected files to cordova
+      .file.dataDirectory (Library/NoCloud on iOS) and (<app-id>/files on Android)
+      instead of temporary directory. (both iOS and Android)
+    - Thai Locale (both iOS and Android)
     - Loading spinner (iOS)
     - Adaptive layout that supports iPhone 6, 6+ and possibly future models (iOS)
     - Cosmetic changes reflecting iOS 8 (iOS)
-    - Thai locale (Android)
-    - Fixed short filename crash (Android)
+    - Fixed crash when filename is shorter than three characters (Android)
+    - Fixed crash when resumed after taking a new photo (Android)
 
 ```
 
