@@ -3,25 +3,25 @@
  *
  * All rights reserved.
  *
- * Redistribution and use in source and binary forms, with or without 
+ * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following  conditions are met:
  *
- *   Redistributions of source code must retain the above copyright notice, 
+ *   Redistributions of source code must retain the above copyright notice,
  *      this list of conditions and the following disclaimer.
- *   Redistributions in binary form must reproduce the above copyright notice, 
- *      this list of conditions and the following  disclaimer in the 
+ *   Redistributions in binary form must reproduce the above copyright notice,
+ *      this list of conditions and the following  disclaimer in the
  *      documentation and/or other materials provided with the distribution.
  *
  * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO, THE 
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
- * ARE DISCLAIMED. IN NO EVENT  SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
- * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR 
- * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF 
- * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR  BUSINESS 
- * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN 
- * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDIN G NEGLIGENCE OR OTHERWISE) 
- * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE 
+ * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING,  BUT NOT LIMITED TO, THE
+ * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ * ARE DISCLAIMED. IN NO EVENT  SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+ * LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+ * CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+ * SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR  BUSINESS
+ * INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+ * CONTRACT, STRICT LIABILITY, OR TORT (INCLUDIN G NEGLIGENCE OR OTHERWISE)
+ * ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH  DAMAGE
  *
  * Code modified by Andrew Stephan for Sync OnSet
@@ -113,7 +113,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
     private Boolean useOriginal;
     private Boolean createThumbnail;
     private Boolean saveToDataDirectory;
-    
+
     private int desiredWidth;
     private int desiredHeight;
     private int quality;
@@ -125,9 +125,9 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
     private int selectedColor = 0xff32b2e1;
     private boolean shouldRequestThumb = true;
-    
+
     private FakeR fakeR;
-    
+
     private ProgressDialog progress;
 
     @Override
@@ -149,7 +149,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
         Display display = getWindowManager().getDefaultDisplay();
         int width = display.getWidth();
-        
+
         colWidth = width / 4;
 
         gridView = (GridView) findViewById(fakeR.getId("id", "gridview"));
@@ -194,7 +194,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         progress.setTitle(getString(fakeR.getId("string", "processing")));
         progress.setMessage(getString(fakeR.getId("string", "processing_time")));
     }
-    
+
     @Override
     public void onItemClick(AdapterView<?> arg0, View view, int position, long id) {
         String name = getImageName(position);
@@ -294,7 +294,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
     protected void onPause() {
         super.onPause();
     }
-    
+
     public void cancelClicked(View ignored) {
         setResult(RESULT_CANCELED);
         finish();
@@ -309,7 +309,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 deselectAllClicked(null);
             }
         });
-        
+
 
         fileNames.clear();
         int position = 0;
@@ -324,7 +324,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 if (maxImages == 0) {
                     openMaxImagesReachedDialog();
                     break;
-                }                
+                }
                 name = actualimagecursor.getString(actual_image_column_index);
                 rotation = actualimagecursor.getInt(orientation_column_index);
                 position = actualimagecursor.getPosition();
@@ -385,8 +385,8 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             new ResizeImagesTask().execute(fileNames.entrySet());
         }
     }
-    
-    
+
+
     /*********************
      * Helper Methods
      ********************/
@@ -463,7 +463,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         }
         return name;
     }
-    
+
     private int getImageRotation(int position) {
         actualimagecursor.moveToPosition(position);
         int rotation = 0;
@@ -475,13 +475,13 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         }
         return rotation;
     }
-    
+
     public boolean isChecked(int position) {
         boolean ret = checkStatus.get(position);
         return ret;
     }
 
-    
+
     /*********************
     * Nested Classes
     ********************/
@@ -495,8 +495,8 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             super.onMeasure(widthMeasureSpec, widthMeasureSpec);
         }
     }
-    
-    
+
+
     private class ImageAdapter extends BaseAdapter {
         private final Bitmap mPlaceHolderBitmap;
 
@@ -561,8 +561,50 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             return imageView;
         }
     }
-    
-    
+
+    private static void copyExif(ExifInterface oldExif, String newPath) throws IOException
+    {
+
+        String[] attributes = new String[]
+        {
+                ExifInterface.TAG_APERTURE,
+                ExifInterface.TAG_DATETIME,
+                ExifInterface.TAG_DATETIME_DIGITIZED,
+                ExifInterface.TAG_EXPOSURE_TIME,
+                ExifInterface.TAG_FLASH,
+                ExifInterface.TAG_FOCAL_LENGTH,
+                ExifInterface.TAG_GPS_ALTITUDE,
+                ExifInterface.TAG_GPS_ALTITUDE_REF,
+                ExifInterface.TAG_GPS_DATESTAMP,
+                ExifInterface.TAG_GPS_LATITUDE,
+                ExifInterface.TAG_GPS_LATITUDE_REF,
+                ExifInterface.TAG_GPS_LONGITUDE,
+                ExifInterface.TAG_GPS_LONGITUDE_REF,
+                ExifInterface.TAG_GPS_PROCESSING_METHOD,
+                ExifInterface.TAG_GPS_TIMESTAMP,
+                ExifInterface.TAG_IMAGE_LENGTH,
+                ExifInterface.TAG_IMAGE_WIDTH,
+                ExifInterface.TAG_ISO,
+                ExifInterface.TAG_MAKE,
+                ExifInterface.TAG_MODEL,
+                ExifInterface.TAG_ORIENTATION,
+                ExifInterface.TAG_SUBSEC_TIME,
+                ExifInterface.TAG_SUBSEC_TIME_DIG,
+                ExifInterface.TAG_SUBSEC_TIME_ORIG,
+                ExifInterface.TAG_WHITE_BALANCE
+        };
+
+        ExifInterface newExif = new ExifInterface(newPath);
+        for (int i = 0; i < attributes.length; i++)
+        {
+            String value = oldExif.getAttribute(attributes[i]);
+            if (value != null)
+                newExif.setAttribute(attributes[i], value);
+        }
+        newExif.saveAttributes();
+    }
+
+
     private class ResizeImagesTask extends AsyncTask<Set<Entry<String, Integer>>, Void, ArrayList<String>> {
         private Exception asyncTaskError = null;
 
@@ -577,6 +619,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
                     Entry<String, Integer> imageInfo = i.next();
                     File originalFile = new File(imageInfo.getKey());
+                    ExifInterface originalExif(imageInfo.getKey());
                     File savedFile = null;
                     File thumbFile = null;
 
@@ -585,9 +628,12 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                         savedFile = this.storeOriginal(imageInfo.getKey(), originalFile.getName());
 
                     } else {
+                        ExifInterface oldExif = new ExifInterface(originalFile.getName());
 
                         bmp = this.processBitmap(originalFile, imageInfo);
                         savedFile = this.storeImage(bmp, originalFile.getName(), false);
+
+                        this.copyExif(oldExif, originalFile.getName());
 
                     }
                     if (createThumbnail) {
@@ -616,7 +662,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 }
             }
         }
-        
+
         @Override
         protected void onPostExecute(ArrayList<String> al) {
             Intent data = new Intent();
@@ -723,11 +769,11 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             }
             return bmp;
         }
-        
+
         /*
         * The following functions are originally from
         * https://github.com/raananw/PhoneGap-Image-Resizer
-        * 
+        *
         * They have been modified by Andrew Stephan for Sync OnSet
         *
         * The software is open source, MIT Licensed.
@@ -735,14 +781,14 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         */
         private File destinationFile(String fileName, boolean isThumb) {
 
-            File destDir = null;      
+            File destDir = null;
 
             if(saveToDataDirectory) {
                 destDir = MultiImageChooserActivity.this.getFilesDir();
             } else {
                 destDir = MultiImageChooserActivity.this.getCacheDir();
             }
-            
+
             int dotIndex = fileName.lastIndexOf('.');
             String name = fileName.substring(0, dotIndex);
             String ext = fileName.substring(dotIndex);
@@ -753,17 +799,17 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 if(isThumb) {
                     destFile = new File(destDir, "thumb_" + name + ext);
                 } else {
-                    destFile = new File(destDir, "snw_photo_" + String.format("%04d", destFileName) + ext);    
+                    destFile = new File(destDir, "snw_photo_" + String.format("%04d", destFileName) + ext);
                 }
                 destFileName++;
             } while (destFile.exists());
 
             return destFile;
-            
+
         }
 
         private File storeImage(Bitmap bmp, String fileName, boolean isThumb) throws IOException {
-            
+
             int dotIndex = fileName.lastIndexOf('.');
             String ext = fileName.substring(dotIndex);
 
@@ -794,7 +840,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
             return file;
         }
-    
+
         private Bitmap getResizedBitmap(Bitmap bm, float factor) {
             int width = bm.getWidth();
             int height = bm.getHeight();
@@ -807,24 +853,24 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
             return resizedBitmap;
         }
     }
-    
+
     private int calculateInSampleSize(BitmapFactory.Options options, int reqWidth, int reqHeight) {
         // Raw height and width of image
         final int height = options.outHeight;
         final int width = options.outWidth;
         int inSampleSize = 1;
-    
+
         if (height > reqHeight || width > reqWidth) {
             final int halfHeight = height / 2;
             final int halfWidth = width / 2;
-    
+
             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
             // height and width larger than the requested height and width.
             while ((halfHeight / inSampleSize) > reqHeight && (halfWidth / inSampleSize) > reqWidth) {
                 inSampleSize *= 2;
             }
         }
-    
+
         return inSampleSize;
     }
 
@@ -832,7 +878,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         double logBaseTwo = (int)(Math.log(sampleSize) / Math.log(2));
         return (int)Math.pow(logBaseTwo + 1, 2);
     }
-    
+
     private float calculateScale(int width, int height) {
         float widthScale = 1.0f;
         float heightScale = 1.0f;
@@ -856,7 +902,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                 }
             }
         }
-        
+
         return scale;
     }
 
@@ -865,7 +911,7 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         builder.setTitle(getString(fakeR.getId("string", "max_1")) + " " + maxImageCount + " " + getString(fakeR.getId("string", "max_2")));
         builder.setMessage(getString(fakeR.getId("string", "max_3")) + " " + maxImageCount + " " + getString(fakeR.getId("string", "max_4")));
         builder.setPositiveButton(getString(fakeR.getId("string", "done")), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int which) { 
+            public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
             }
         });
