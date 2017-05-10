@@ -62,6 +62,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Matrix;
+import android.media.ExifInterface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -562,51 +563,51 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
         }
     }
 
-    private static void copyExif(ExifInterface oldExif, String newPath) throws IOException
-    {
-
-        String[] attributes = new String[]
-        {
-                ExifInterface.TAG_APERTURE,
-                ExifInterface.TAG_DATETIME,
-                ExifInterface.TAG_DATETIME_DIGITIZED,
-                ExifInterface.TAG_EXPOSURE_TIME,
-                ExifInterface.TAG_FLASH,
-                ExifInterface.TAG_FOCAL_LENGTH,
-                ExifInterface.TAG_GPS_ALTITUDE,
-                ExifInterface.TAG_GPS_ALTITUDE_REF,
-                ExifInterface.TAG_GPS_DATESTAMP,
-                ExifInterface.TAG_GPS_LATITUDE,
-                ExifInterface.TAG_GPS_LATITUDE_REF,
-                ExifInterface.TAG_GPS_LONGITUDE,
-                ExifInterface.TAG_GPS_LONGITUDE_REF,
-                ExifInterface.TAG_GPS_PROCESSING_METHOD,
-                ExifInterface.TAG_GPS_TIMESTAMP,
-                ExifInterface.TAG_IMAGE_LENGTH,
-                ExifInterface.TAG_IMAGE_WIDTH,
-                ExifInterface.TAG_ISO,
-                ExifInterface.TAG_MAKE,
-                ExifInterface.TAG_MODEL,
-                ExifInterface.TAG_ORIENTATION,
-                ExifInterface.TAG_SUBSEC_TIME,
-                ExifInterface.TAG_SUBSEC_TIME_DIG,
-                ExifInterface.TAG_SUBSEC_TIME_ORIG,
-                ExifInterface.TAG_WHITE_BALANCE
-        };
-
-        ExifInterface newExif = new ExifInterface(newPath);
-        for (int i = 0; i < attributes.length; i++)
-        {
-            String value = oldExif.getAttribute(attributes[i]);
-            if (value != null)
-                newExif.setAttribute(attributes[i], value);
-        }
-        newExif.saveAttributes();
-    }
-
 
     private class ResizeImagesTask extends AsyncTask<Set<Entry<String, Integer>>, Void, ArrayList<String>> {
         private Exception asyncTaskError = null;
+
+        private void copyExif(ExifInterface oldExif, String newPath) throws IOException
+        {
+
+            String[] attributes = new String[]
+            {
+                    ExifInterface.TAG_APERTURE,
+                    ExifInterface.TAG_DATETIME,
+                    ExifInterface.TAG_DATETIME_DIGITIZED,
+                    ExifInterface.TAG_EXPOSURE_TIME,
+                    ExifInterface.TAG_FLASH,
+                    ExifInterface.TAG_FOCAL_LENGTH,
+                    ExifInterface.TAG_GPS_ALTITUDE,
+                    ExifInterface.TAG_GPS_ALTITUDE_REF,
+                    ExifInterface.TAG_GPS_DATESTAMP,
+                    ExifInterface.TAG_GPS_LATITUDE,
+                    ExifInterface.TAG_GPS_LATITUDE_REF,
+                    ExifInterface.TAG_GPS_LONGITUDE,
+                    ExifInterface.TAG_GPS_LONGITUDE_REF,
+                    ExifInterface.TAG_GPS_PROCESSING_METHOD,
+                    ExifInterface.TAG_GPS_TIMESTAMP,
+                    ExifInterface.TAG_IMAGE_LENGTH,
+                    ExifInterface.TAG_IMAGE_WIDTH,
+                    ExifInterface.TAG_ISO,
+                    ExifInterface.TAG_MAKE,
+                    ExifInterface.TAG_MODEL,
+                    ExifInterface.TAG_ORIENTATION,
+                    ExifInterface.TAG_SUBSEC_TIME,
+                    ExifInterface.TAG_SUBSEC_TIME_DIG,
+                    ExifInterface.TAG_SUBSEC_TIME_ORIG,
+                    ExifInterface.TAG_WHITE_BALANCE
+            };
+
+            ExifInterface newExif = new ExifInterface(newPath);
+            for (int i = 0; i < attributes.length; i++)
+            {
+                String value = oldExif.getAttribute(attributes[i]);
+                if (value != null)
+                    newExif.setAttribute(attributes[i], value);
+            }
+            newExif.saveAttributes();
+        }
 
         @Override
         protected ArrayList<String> doInBackground(Set<Entry<String, Integer>>... fileSets) {
@@ -619,7 +620,6 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
 
                     Entry<String, Integer> imageInfo = i.next();
                     File originalFile = new File(imageInfo.getKey());
-                    ExifInterface originalExif(imageInfo.getKey());
                     File savedFile = null;
                     File thumbFile = null;
 
@@ -628,12 +628,12 @@ public class MultiImageChooserActivity extends Activity implements OnItemClickLi
                         savedFile = this.storeOriginal(imageInfo.getKey(), originalFile.getName());
 
                     } else {
-                        ExifInterface oldExif = new ExifInterface(originalFile.getName());
+                        ExifInterface oldExif = new ExifInterface(imageInfo.getKey());
 
                         bmp = this.processBitmap(originalFile, imageInfo);
                         savedFile = this.storeImage(bmp, originalFile.getName(), false);
 
-                        this.copyExif(oldExif, originalFile.getName());
+                        this.copyExif(oldExif, savedFile.getAbsolutePath());
 
                     }
                     if (createThumbnail) {
